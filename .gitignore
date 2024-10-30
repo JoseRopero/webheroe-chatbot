@@ -1,0 +1,11 @@
+# Ignorar archivos temporales
+*.log
+*.tmp
+*.bak
+
+# Ignorar dependencias si usas Composer
+/vendor/
+
+# Ignorar archivos de sistema
+.DS_Store
+Thumbs.db
