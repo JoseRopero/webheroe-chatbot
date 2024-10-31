@@ -1,0 +1,60 @@
+#webheroe-chatbot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: #fff;
+    font-family: Arial, sans-serif;
+    z-index: 1000;
+}
+
+#chat-window {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+}
+
+#chat-log {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    border-bottom: 1px solid #ccc;
+}
+
+.user-message {
+    text-align: right;
+    margin: 5px 0;
+    color: #007BFF;
+}
+
+.bot-message {
+    text-align: left;
+    margin: 5px 0;
+    color: #28A745;
+}
+
+#chat-input {
+    padding: 10px;
+    border: none;
+    border-top: 1px solid #ccc;
+    flex: none;
+    width: calc(100% - 80px);
+    box-sizing: border-box;
+}
+
+#chat-submit {
+    padding: 10px;
+    border: none;
+    background-color: #007BFF;
+    color: #fff;
+    cursor: pointer;
+    flex: none;
+    width: 60px;
+}
+
+#chat-submit:hover {
+    background-color: #0056b3;
+}

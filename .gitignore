@@ -9,3 +9,8 @@
 # Ignorar archivos de sistema
 .DS_Store
 Thumbs.db
+
+# Ignorar otros archivos innecesarios
+node_modules/
+npm-debug.log
+yarn-error.log
