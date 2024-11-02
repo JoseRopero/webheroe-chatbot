@@ -1,0 +1,17 @@
+[33mcommit e48aa77f00478f3186bdb36506c67de1b56a9a3e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mgestion-pdf[m[33m, [m[1;32mnueva-funcionalidad[m[33m)[m
+Author: JoseRopero <josemanuelropero@hotmail.com>
+Date:   Sat Nov 2 01:05:30 2024 +0100
+
+    Funcionalidad añadir pdf
+
+[33mcommit 86c5e9514aa5487f29913ddcba8a4e87efd9934f[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m
+Author: JoseRopero <josemanuelropero@hotmail.com>
+Date:   Thu Oct 31 18:06:36 2024 +0100
+
+    Funcionalidades básicas
+
+[33mcommit c9c381ff19fbe637940326d8eaee48f990edc576[m
+Author: JoseRopero <josemanuelropero@hotmail.com>
+Date:   Wed Oct 30 17:40:12 2024 +0100
+
+    Primer commit
