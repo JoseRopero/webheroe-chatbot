@@ -178,3 +178,66 @@ if ( ! function_exists( 'webheroe_chatbot_shortcode' ) ) {
     }
 }
 add_shortcode( 'webheroe_chatbot', 'webheroe_chatbot_shortcode' );
+
+
+
+//Posible implementación de crear el índice embedding desde código
+/*
+function webheroe_chatbot_activate() {
+    // Obtener la URL de Elasticsearch de las opciones del plugin
+    $elasticsearch_url = get_option( 'webheroe_chatbot_elasticsearch_url' );
+
+    // Verificar si la URL de Elasticsearch está configurada
+    if ( empty( $elasticsearch_url ) ) {
+        error_log( "URL de Elasticsearch no configurada. No se puede crear el índice." );
+        return; // Salir si la URL no está configurada
+    }
+
+    // Crear el índice en Elasticsearch
+    $index_name = 'embedding';
+    $url = rtrim( $elasticsearch_url, '/' ) . "/$index_name";
+
+    // Configuración del índice
+    $settings = [
+        'settings' => [
+            'number_of_shards' => 1,
+            'number_of_replicas' => 1,
+        ],
+        'mappings' => [
+            'properties' => [
+                'text' => [
+                    'type' => 'text',
+                ],
+                'embedding' => [
+                    'type' => 'float', // Ajusta según las dimensiones del embedding
+                ],
+                'metadata' => [
+                    'type' => 'object', // Para almacenar metadatos adicionales
+                ],
+            ],
+        ],
+    ];
+
+    // Enviar la solicitud para crear el índice
+    $response = wp_remote_request( $url, [
+        'method' => 'PUT',
+        'body' => json_encode( $settings ),
+        'headers' => [
+            'Content-Type' => 'application/json',
+        ],
+    ]);
+
+    // Manejar la respuesta
+    if ( is_wp_error( $response ) ) {
+        error_log( 'Error al crear el índice en Elasticsearch: ' . $response->get_error_message() );
+    } else {
+        $status_code = wp_remote_retrieve_response_code( $response );
+        if ( $status_code === 200 || $status_code === 201 ) {
+            error_log( "Índice '$index_name' creado exitosamente en Elasticsearch." );
+        } else {
+            error_log( "Error al crear el índice '$index_name'. Código de estado: $status_code. Respuesta: " . wp_remote_retrieve_body( $response ) );
+        }
+    }
+}
+register_activation_hook( __FILE__, 'webheroe_chatbot_activate' );
+*/
