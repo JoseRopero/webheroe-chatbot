@@ -46,10 +46,34 @@
 - Accede a tu panel de Pinecone y genera una nueva clave API.
 - Guarda la clave en la configuración del plugin.
 
-### 3. Creación del Índice en Pinecone
+### 3. Creación del Índice en Kibana
 
-- En el panel de control de Pinecone, ve a la sección de índices.
-- Crea un nuevo índice llamado `embedding`. Este índice se utilizará para almacenar los embeddings generados por el plugin.
+- Accede a tu cuenta de **Bonsai** y dirígete a **Kibana**.
+- En Kibana, ve a la sección de **Dev Tools**.
+- Para crear un índice llamado `embedding`, ejecuta el siguiente comando en la consola de Dev Tools:
+
+```json
+PUT /embedding
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1
+  },
+  "mappings": {
+    "properties": {
+      "text": {
+        "type": "text"
+      },
+      "embedding": {
+        "type": "float"  // Ajusta esto según el tipo de datos que necesites para el embedding
+      },
+      "metadata": {
+        "type": "object"  // Para almacenar metadatos adicionales
+      }
+    }
+  }
+}
+```
 
 ### 4. Nombre del Índice en Pinecone
 
