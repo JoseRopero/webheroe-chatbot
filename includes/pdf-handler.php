@@ -45,91 +45,76 @@ function webheroe_chatbot_process_uploaded_pdf( $attachment_id ) {
     $text = preg_replace('/\s+/', ' ', $text); // Reemplaza múltiples espacios por uno solo
     $text = trim( $text ); // Elimina espacios al inicio y final
 
-    // Dividir el texto en secciones por miembro del equipo
-    $sections = split_text_into_sections( $text );
-    if ( empty( $sections ) ) {
-        error_log( "No se pudieron dividir las secciones del texto para el PDF (ID $attachment_id)." );
-        return;
-    }
-    error_log( "Texto dividido en " . count( $sections ) . " secciones para el PDF (ID $attachment_id)." );
-
-    // Loguear los títulos de las secciones capturadas
-    foreach ( $sections as $section_title => $section_text ) {
-        error_log( "Sección capturada: " . $section_title );
+    // Usar el texto completo para generar embedding
+    $embeddings_api_key = get_option( 'webheroe_chatbot_embeddings_api_key' );
+    if ( empty( $embeddings_api_key ) ) {
+        error_log( "Clave API de OpenAI no configurada. ID: $attachment_id");
+        return; // No continuar si la clave no está configurada
     }
 
-    // Procesar cada sección individualmente
-    foreach ( $sections as $section_title => $section_text ) {
-        error_log( "Procesando sección: " . $section_title );
-
-        // Generar embedding usando OpenAI
-        $embeddings_api_key = get_option( 'webheroe_chatbot_embeddings_api_key' );
-        if ( empty( $embeddings_api_key ) ) {
-            error_log( "Clave API de OpenAI no configurada. Sección: " . $section_title );
-            continue; // Saltar esta sección
-        }
-
-        $embedding = generar_embedding_openai_con_reintentos( $section_text, $embeddings_api_key );
-        if ( ! $embedding ) {
-            error_log( "Error al generar el embedding para la sección: " . $section_title );
-            continue; // Saltar esta sección
-        }
-        // Loguear los primeros 10 valores del embedding
-        $embedding_preview = implode( ', ', array_slice( $embedding, 0, 10 ) );
-        error_log( "Embedding generado exitosamente para " . $section_title . ". Primeros valores: " . $embedding_preview );
-
-        // Generar un ID único para el documento sin caracteres acentuados
-        $sanitized_title = strtolower( remove_accents_custom( str_replace( array(' ', '.'), '_', $section_title ) ) );
-        $doc_id = 'pdf_' . $sanitized_title . '_' . uniqid();
-
-        // Obtener configuraciones de Pinecone
-        $pinecone_api_key = get_option( 'webheroe_chatbot_pinecone_api_key' );
-        $pinecone_index = get_option( 'webheroe_chatbot_pinecone_index' );
-        $pinecone_host = get_option( 'webheroe_chatbot_pinecone_host' );
-
-        if ( empty( $pinecone_api_key ) || empty( $pinecone_index ) || empty( $pinecone_host ) ) {
-            error_log( "Configuraciones de Pinecone incompletas. Sección: " . $section_title );
-            continue; // Saltar esta sección
-        }
-
-        // Definir metadatos
-        $metadata = array(
-            'title' => $section_title,
-            'url' => wp_get_attachment_url( $attachment_id ),
-            'uploaded_at' => current_time( 'mysql' ),
-            'type' => 'pdf' // Añadir tipo para filtrado futuro
-        );
-
-        // Guardar embedding en Pinecone
-        $pinecone_result = guardar_embedding_pinecone( 
-            $doc_id, 
-            $embedding, 
-            $pinecone_api_key, 
-            $pinecone_index, 
-            $pinecone_host, 
-            $metadata 
-        );
-        if ( ! $pinecone_result ) {
-            error_log( "Error al guardar el embedding en Pinecone para la sección: " . $section_title );
-            continue; // Saltar esta sección
-        }
-        error_log( "Embedding guardado en Pinecone para ID $doc_id." );
-
-        // Indexar en Elasticsearch
-        $elasticsearch_url = get_option( 'webheroe_chatbot_elasticsearch_url' );
-        if ( empty( $elasticsearch_url ) ) {
-            error_log( "URL de Elasticsearch no configurada. Sección: " . $section_title );
-            continue; // Saltar esta sección
-        }
-
-        $indexado_elasticsearch = indexar_documento_en_elasticsearch( $section_text, $embedding, $doc_id, $elasticsearch_url, $metadata );
-        if ( ! $indexado_elasticsearch ) {
-            error_log( "Error al indexar el documento en Elasticsearch para la sección: " . $section_title );
-            continue; // Saltar esta sección
-        }
-        error_log( "Documento indexado en Elasticsearch para ID $doc_id." );
+    // Generar embedding usando el texto completo
+    $embedding = generar_embedding_openai_con_reintentos( $text, $embeddings_api_key );
+    if ( ! $embedding ) {
+        error_log( "Error al generar el embedding para el PDF: ID $attachment_id" );
+        return; // No continuar si hubo un error en la generación del embedding
     }
+
+    // Loguear los primeros 10 valores del embedding
+    $embedding_preview = implode( ', ', array_slice( $embedding, 0, 10 ) );
+    error_log( "Embedding generado exitosamente para ID $attachment_id. Primeros valores: " . $embedding_preview );
+
+    // Generar un ID único para el documento sin caracteres acentuados
+    $sanitized_title = strtolower( remove_accents_custom( str_replace( array(' ', '.'), '_', $attachment->post_title ) ) );
+    $doc_id = 'pdf_' . $sanitized_title . '_' . uniqid();
+
+    // Obtener configuraciones de Pinecone
+    $pinecone_api_key = get_option( 'webheroe_chatbot_pinecone_api_key' );
+    $pinecone_index = get_option( 'webheroe_chatbot_pinecone_index' );
+    $pinecone_host = get_option( 'webheroe_chatbot_pinecone_host' );
+
+    if ( empty( $pinecone_api_key ) || empty( $pinecone_index ) || empty( $pinecone_host ) ) {
+        error_log( "Configuraciones de Pinecone incompletas para ID: $attachment_id");
+        return; // No continuar si hay configuraciones incompletas
+    }
+
+    // Definir metadatos
+    $metadata = array(
+        'title' => $attachment->post_title,
+        'url' => wp_get_attachment_url( $attachment_id ),
+        'uploaded_at' => current_time( 'mysql' ),
+        'type' => 'pdf' // Añadir tipo para filtrado futuro
+    );
+
+    // Guardar embedding en Pinecone
+    $pinecone_result = guardar_embedding_pinecone( 
+        $doc_id, 
+        $embedding, 
+        $pinecone_api_key, 
+        $pinecone_index, 
+        $pinecone_host, 
+        $metadata 
+    );
+    if ( ! $pinecone_result ) {
+        error_log( "Error al guardar el embedding en Pinecone para ID: $doc_id");
+        return; // No continuar si hubo un error al guardar en Pinecone
+    }
+    error_log( "Embedding guardado en Pinecone para ID $doc_id." );
+
+    // Indexar en Elasticsearch
+    $elasticsearch_url = get_option( 'webheroe_chatbot_elasticsearch_url' );
+    if ( empty( $elasticsearch_url ) ) {
+        error_log( "URL de Elasticsearch no configurada para ID: $doc_id");
+        return; // No continuar si la URL no está configurada
+    }
+
+    $indexado_elasticsearch = indexar_documento_en_elasticsearch( $text, $embedding, $doc_id, $elasticsearch_url, $metadata );
+    if ( ! $indexado_elasticsearch ) {
+        error_log( "Error al indexar el documento en Elasticsearch para ID: $doc_id");
+        return; // No continuar si hubo un error al indexar
+    }
+    error_log( "Documento indexado en Elasticsearch para ID $doc_id." );
 }
+
 
 /**
  * Dividir el texto en secciones por miembro del equipo
@@ -137,6 +122,7 @@ function webheroe_chatbot_process_uploaded_pdf( $attachment_id ) {
  * @param string $text Texto completo extraído del PDF.
  * @return array Arreglo asociativo donde la clave es el nombre del miembro y el valor es su descripción.
  */
+/*
 if ( ! function_exists( 'split_text_into_sections' ) ) {
     function split_text_into_sections( $text ) {
         $sections = array();
@@ -169,6 +155,23 @@ if ( ! function_exists( 'split_text_into_sections' ) ) {
         return $sections;
     }
 }
+*/
+
+/**
+ * Obtener todo el texto extraído del PDF.
+ *
+ * @param string $text Texto completo extraído del PDF.
+ * @return array Arreglo con el texto completo en un solo elemento.
+ */
+if ( ! function_exists( 'split_text_into_sections' ) ) {
+    function split_text_into_sections( $text ) {
+        // Normalizar el texto
+        $text = preg_replace('/\s+/', ' ', $text);
+        return [trim( $text )]; // Devolver un array con el texto completo
+    }
+}
+
+
 
 /**
  * Eliminar acentos de una cadena de texto.
