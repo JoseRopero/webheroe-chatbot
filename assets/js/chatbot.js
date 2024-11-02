@@ -7,6 +7,10 @@ jQuery(document).ready(function($) {
         $('#chat-log').append('<div class="user-message">' + userInput + '</div>');
         $('#chat-input').val('');
 
+        // Indicador de carga
+        var loading = $('<div class="bot-message">Pensando...</div>');
+        $('#chat-log').append(loading);
+
         // Enviar la solicitud AJAX al backend
         $.ajax({
             type: 'POST',
@@ -18,16 +22,13 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if(response.success) {
-                    // Mostrar la respuesta del chatbot en el chat log
-                    $('#chat-log').append('<div class="bot-message">' + response.data.reply + '</div>');
-                    // Desplazar el chat log hacia abajo
-                    $('#chat-log').scrollTop($('#chat-log')[0].scrollHeight);
+                    loading.replaceWith('<div class="bot-message">' + response.data.reply + '</div>');
                 } else {
-                    $('#chat-log').append('<div class="bot-message">Error al procesar la solicitud.</div>');
+                    loading.replaceWith('<div class="bot-message">Error al procesar la solicitud.</div>');
                 }
             },
             error: function() {
-                $('#chat-log').append('<div class="bot-message">Error de comunicación.</div>');
+                loading.replaceWith('<div class="bot-message">Error de comunicación.</div>');
             }
         });
     });

@@ -1,0 +1,7 @@
+# Establece el final de línea a LF para todos los archivos de texto
+* text=auto
+
+# Especifica explícitamente finales de línea para ciertos tipos de archivos
+*.js text eol=lf
+*.json text eol=lf
+*.lock text eol=lf

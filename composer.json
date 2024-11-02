@@ -1,0 +1,17 @@
+{
+    "name": "josem/webheroe-chatbot",
+    "autoload": {
+        "psr-4": {
+            "Josem\\WebheroeChatbot\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "JoseRopero",
+            "email": "josemanuelropero@hotmail.com"
+        }
+    ],
+    "require": {
+        "smalot/pdfparser": "^2.11"
+    }
+}
