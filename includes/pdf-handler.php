@@ -94,6 +94,7 @@ function webheroe_chatbot_process_uploaded_pdf( $attachment_id ) {
         $pinecone_host, 
         $metadata 
     );
+    update_post_meta($attachment_id, '_webheroe_doc_id' , $doc_id);
     if ( ! $pinecone_result ) {
         error_log( "Error al guardar el embedding en Pinecone para ID: $doc_id");
         return; // No continuar si hubo un error al guardar en Pinecone
@@ -114,6 +115,101 @@ function webheroe_chatbot_process_uploaded_pdf( $attachment_id ) {
     }
     error_log( "Documento indexado en Elasticsearch para ID $doc_id." );
 }
+
+function webheroe_chatbot_delete_pdf($attachment_id){
+    // Obtenemos el MIME type del archivo
+    $attachment = get_post($attachment_id);
+    $mime_type = get_post_mime_type( $attachment );
+
+    //Verificamos si el archivo es un pdf
+    if ($mime_type !== 'application/pdf'){
+        return; //No es un pdf, salimos de la función
+    }
+
+    $doc_id = get_post_meta($attachment_id, '_webheroe_doc_id', true);
+
+    if(empty($doc_id)){
+        error_log('No se encontró doc_id para el PDF: ID ' . $attachment_id);
+        return;
+    }
+
+    webheroe_chatbot_delete_vectors($doc_id);
+
+    //Borramos el documento de ElasticSearch
+    $elasticsearch_url = get_option('webheroe_chatbot_elasticsearch_url');
+    if(! empty($elasticsearch_url)){
+        $elasticsearch_url = rtrim($elasticsearch_url, '/') . '/_doc/$doc_id';
+
+        $response = wp_remote_request($elasticsearch_url, [
+            'method' => 'DELETE',
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+        ]);
+
+        if(is_wp_error( $response )){
+            error_log('Error al eliminar el documento en ElasticSearch: ' . $response->get_error_message());
+        }else{
+            error_log('Documento eliminado en ElasticSearch para ID ' . $doc_id);
+        }
+    }
+}
+add_action('delete_attachment', 'webheroe_chatbot_delete_pdf');
+
+/**
+ * Función para eliminar vectores en Pinecone
+ *
+ * @param array $ids Arreglo de IDs de los vectores a eliminar.
+ * @param string $namespace Namespace donde se encuentran los vectores.
+ */
+function webheroe_chatbot_delete_vectors( $ids) {
+    $pinecone_api_key = get_option( 'webheroe_chatbot_pinecone_api_key' );
+    $pinecone_host = get_option( 'webheroe_chatbot_pinecone_host' );
+
+    if ( empty( $pinecone_api_key ) || empty( $pinecone_host ) ) {
+        error_log( "No se puede eliminar los vectores. Las credenciales de Pinecone no están configuradas." );
+        return;
+    }
+
+    // URL para eliminar los vectores
+    $url = $pinecone_host . "/vectors/delete";
+
+    // Datos de la solicitud
+    $data = [
+        'ids' => $ids,
+    ];
+
+    // Si se proporciona un namespace, incluirlo en los datos
+    if ( ! empty( $namespace ) ) {
+        $data['namespace'] = $namespace;
+    }
+
+    // Enviar la solicitud POST
+    $response = wp_remote_post( $url, [
+        'method' => 'POST',
+        'headers' => [
+            'Api-Key' => $pinecone_api_key,
+            'Content-Type' => 'application/json',
+            'X-Pinecone-API-Version' => '2024-07',
+        ],
+        'body' => json_encode( $data ),
+    ]);
+
+    // Manejar la respuesta
+    if ( is_wp_error( $response ) ) {
+        error_log( 'Error al eliminar los vectores en Pinecone: ' . $response->get_error_message() );
+    } else {
+        $status_code = wp_remote_retrieve_response_code( $response );
+        if ( $status_code === 204 ) {
+            error_log( "Vectores eliminados exitosamente en Pinecone." );
+        } elseif($status_code === 200){
+            error_log("La solicitud para eliminar vectores fue exitosa, pero no hay respuesta adicional.");
+        } else {
+            error_log( "Error al eliminar vectores en Pinecone. Código de estado: " . $status_code . ". Respuesta: " . wp_remote_retrieve_body( $response ));
+        }
+    }
+}
+
 
 
 /**
