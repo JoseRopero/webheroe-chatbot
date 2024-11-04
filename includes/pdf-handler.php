@@ -126,6 +126,7 @@ function webheroe_chatbot_delete_pdf($attachment_id){
         return; //No es un pdf, salimos de la función
     }
 
+    //Obtenemos el ID guardado
     $doc_id = get_post_meta($attachment_id, '_webheroe_doc_id', true);
 
     if(empty($doc_id)){
@@ -179,7 +180,7 @@ function webheroe_chatbot_delete_vectors( $ids) {
         'ids' => $ids,
     ];
 
-    // Si se proporciona un namespace, incluirlo en los datos
+    // Si se proporciona un namespace, incluirlo en los datos. En nuestro caso no hace falta.
     if ( ! empty( $namespace ) ) {
         $data['namespace'] = $namespace;
     }
@@ -210,49 +211,6 @@ function webheroe_chatbot_delete_vectors( $ids) {
     }
 }
 
-
-
-/**
- * Dividir el texto en secciones por miembro del equipo
- * 
- * @param string $text Texto completo extraído del PDF.
- * @return array Arreglo asociativo donde la clave es el nombre del miembro y el valor es su descripción.
- */
-/*
-if ( ! function_exists( 'split_text_into_sections' ) ) {
-    function split_text_into_sections( $text ) {
-        $sections = array();
-
-        // Definir los nombres de los miembros del equipo
-        $team_members = array(
-            'Ana Patricia G. C.',
-            'Álvaro Torres'
-        );
-
-        // Normalizar el texto
-        $text = preg_replace('/\s+/', ' ', $text);
-        $text = trim( $text );
-
-        foreach ( $team_members as $index => $member ) {
-            if ($index < count($team_members) - 1) {
-                $next_member = preg_quote( $team_members[$index + 1], '/' );
-                $pattern = '/'. preg_quote( $member, '/' ) .'\s*(.*?)\s*(?='.$next_member.'|$)/is';
-            } else {
-                $pattern = '/'. preg_quote( $member, '/' ) .'\s*(.*)/is';
-            }
-
-            if ( preg_match( $pattern, $text, $matches ) ) {
-                $sections[ $member ] = trim( $matches[1] );
-            } else {
-                error_log( 'No se encontró la sección para: ' . $member );
-            }
-        }
-
-        return $sections;
-    }
-}
-*/
-
 /**
  * Obtener todo el texto extraído del PDF.
  *
@@ -266,8 +224,6 @@ if ( ! function_exists( 'split_text_into_sections' ) ) {
         return [trim( $text )]; // Devolver un array con el texto completo
     }
 }
-
-
 
 /**
  * Eliminar acentos de una cadena de texto.

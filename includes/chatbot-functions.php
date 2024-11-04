@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 if ( ! function_exists( 'webheroe_chatbot_response' ) ) {
     function webheroe_chatbot_response() {
-        // Verificamos nonce para seguridad
+        // Verificamos nonce para seguridad, número utilizado una sola vez contra ataques de CSRF(Cross-Site Request Forgery).
         if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'webheroe_chatbot_nonce' ) ) {
             error_log( 'Nonce de seguridad no válido.' );
             wp_send_json_error( 'Nonce de seguridad no válido.' );
@@ -71,7 +71,7 @@ if ( ! function_exists( 'webheroe_chatbot_response' ) ) {
         error_log( 'Embedding guardado en Pinecone.' );
 
         // Indexar el documento en Elasticsearch
-        $contenido = $user_message; // Puedes ajustar esto según tus necesidades
+        $contenido = $user_message;
         $indexado_elasticsearch = indexar_documento_en_elasticsearch( $contenido, $embedding, $id, $elasticsearch_url );
         if ( !$indexado_elasticsearch ) {
             error_log( 'Error al indexar el documento en Elasticsearch.' );
@@ -79,7 +79,7 @@ if ( ! function_exists( 'webheroe_chatbot_response' ) ) {
         }
         error_log( 'Documento indexado en Elasticsearch.' );
 
-        // Buscar embeddings similares en Pinecone
+        // Buscar embeddings similares en Pinecone, se limita a 5 coincidencias
         $matches = buscar_similares_pinecone( $embedding, 5, $pinecone_api_key, $pinecone_host );
         if ( !$matches ) {
             error_log( 'Error al buscar información en Pinecone.' );
@@ -87,7 +87,7 @@ if ( ! function_exists( 'webheroe_chatbot_response' ) ) {
         }
         error_log( 'Embeddings similares encontrados en Pinecone.' );
 
-        // Recuperar documentos desde Elasticsearch
+        // Recuperar documentos desde Elasticsearch, se recorre cada coincidencia de embeddings. Si se encuentra un documento se agrega al array
         $resultados = array();
         foreach ( $matches as $match ) {
             $id = $match['id'];
@@ -157,13 +157,14 @@ if ( ! function_exists( 'generar_embedding_openai' ) ) {
             return false;
         }
 
-        // Decodificar la respuesta JSON
+        // Decodificar la respuesta JSON a un array PHP
         $resultado = json_decode( $respuesta, true );
         if ( json_last_error() !== JSON_ERROR_NONE ) {
             error_log( 'Error al decodificar JSON: ' . json_last_error_msg() );
             return false;
         }
 
+        //Devolver el embedding generado
         if ( isset( $resultado['data'][0]['embedding'] ) ) {
             return $resultado['data'][0]['embedding'];
         }
@@ -180,6 +181,7 @@ if ( ! function_exists( 'indexar_documento_en_elasticsearch' ) ) {
     function indexar_documento_en_elasticsearch( $contenido, $embedding, $id, $elasticsearch_url ) {
         $index = 'embeddings'; // Asegúrate de que el índice exista y tenga el mapeo correcto
 
+        //Creamos el documento
         $documento = array(
             'contenido' => $contenido,
             'embedding' => $embedding
@@ -203,7 +205,7 @@ if ( ! function_exists( 'indexar_documento_en_elasticsearch' ) ) {
         }
         curl_close( $ch );
 
-        // Decodificar la respuesta
+        // Decodificar la respuesta y verificar resultados
         $resultado = json_decode( $respuesta, true );
         if ( isset( $resultado['result'] ) && in_array( $resultado['result'], array( 'created', 'updated' ) ) ) {
             return true;

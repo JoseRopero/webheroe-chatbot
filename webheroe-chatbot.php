@@ -2,7 +2,7 @@
 /*
 Plugin Name: WebHeroe Chatbot
 Description: Plugin personalizado para integrar un chatbot con IA en WebHeroe.
-Version: 1.2
+Version: 2.0
 Author: Jose Manuel Ropero
 Text Domain: webheroe-chatbot
 Domain Path: /languages
