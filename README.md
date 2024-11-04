@@ -12,7 +12,7 @@
 
 - **Interacción en Tiempo Real**: Ofrece respuestas instantáneas a las preguntas de los usuarios.
 - **Soporte para PDF**: Carga cualquier documento PDF y permite al chatbot responder preguntas sobre su contenido.
-- **Integración de IA**: Utiliza modelos avanzados de OpenAI para generar respuestas precisas y contextuales.
+- **Integración de IA**: Utiliza el modelo Meta Code Llama 70B para generar respuestas precisas y contextuales.
 - **Fácil de Configurar**: Con un menú de administración intuitivo para gestionar configuraciones y claves API.
 
 ## 📦 Instalación
