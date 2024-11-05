@@ -1,60 +1,92 @@
 #webheroe-chatbot {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 300px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    background-color: #fff;
+    max-width: 500px;
+    margin: 20px auto;
     font-family: Arial, sans-serif;
-    z-index: 1000;
 }
 
 #chat-window {
-    display: flex;
-    flex-direction: column;
-    height: 400px;
-}
-
-#chat-log {
-    flex: 1;
-    padding: 10px;
+    border-radius: 10px;
     overflow-y: auto;
-    border-bottom: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    display: none; /* Oculto por defecto */
+    transition: all 0.3s ease; /* Suave transición */
 }
 
-.user-message {
-    text-align: right;
-    margin: 5px 0;
-    color: #007BFF;
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-.bot-message {
-    text-align: left;
-    margin: 5px 0;
-    color: #28A745;
+
+.input-group {
+    position: relative; /* Asegurarnos de que el botón se posicione correctamente */
 }
 
 #chat-input {
-    padding: 10px;
+    width: calc(100% - 50px); /* Ajustar el ancho del campo de entrada */
     border: none;
-    border-top: 1px solid #ccc;
-    flex: none;
-    width: calc(100% - 80px);
-    box-sizing: border-box;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-right: 5px; /* Espacio entre el campo de entrada y el botón */
+    padding-right: 40px;
 }
 
-#chat-submit {
+.user-message, .bot-message {
+    margin: 10px 0;
     padding: 10px;
-    border: none;
-    background-color: #007BFF;
-    color: #fff;
-    cursor: pointer;
-    flex: none;
-    width: 60px;
+    border-radius: 5px;
 }
 
-#chat-submit:hover {
-    background-color: #0056b3;
+.user-message {
+    background-color: #e1ffc7; /* Color del mensaje del usuario */
+    border-radius: 20px;
+    padding: 10px;
+    display: inline-block;
+    max-width: 80%;
+    animation: fadeIn 0.5s forwards;
+    margin-left: auto;
+}
+
+.bot-message {
+    background-color: #f0f0f0; /* Color del mensaje del bot */
+    border-radius: 20px;
+    padding: 10px;
+    display: inline-block;
+    max-width: 80%;
+    animation: fadeIn 0.5s forwards;
+    margin-right: auto;
+}
+
+.send-button{
+    background-color: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    background: none;
+}
+
+.send-button img{
+    display: block;
+}
+
+.send-button:hover{
+    background-color: transparent;
+}
+
+#chat-submit{
+    background: none;
+}
+
+.message{
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    margin-bottom: 10px;
 }

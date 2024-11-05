@@ -1,7 +1,18 @@
 jQuery(document).ready(function($) {
+    // Mostrar/ocultar el chat
+    $('#toggle-chat').on('click', function() {
+        $('#chat-window').toggle(); // Alternar la visibilidad del chat
+        if ($('#chat-window').is(':visible')) {
+            $('#toggle-chat').hide(); // Ocultar la imagen
+            $('#chat-input').focus(); // Enfocar el campo de entrada al mostrar el chat
+        } else {
+            $('#toggle-chat').show(); // Mostrar la imagen
+        }
+    });
+
     $('#chat-submit').on('click', function() {
         var userInput = $('#chat-input').val().trim();
-        if(userInput === '') return;
+        if (userInput === '') return;
 
         // Mostrar el mensaje del usuario en el chat log
         $('#chat-log').append('<div class="user-message">' + userInput + '</div>');
@@ -21,7 +32,7 @@ jQuery(document).ready(function($) {
                 nonce: webheroe_ajax.nonce
             },
             success: function(response) {
-                if(response.success) {
+                if (response.success) {
                     loading.replaceWith('<div class="bot-message">' + response.data.reply + '</div>');
                 } else {
                     loading.replaceWith('<div class="bot-message">Error al procesar la solicitud.</div>');
@@ -35,7 +46,7 @@ jQuery(document).ready(function($) {
 
     // Enviar mensaje con la tecla Enter
     $('#chat-input').on('keypress', function(e) {
-        if(e.which === 13) {
+        if (e.which === 13) {
             $('#chat-submit').click();
         }
     });
