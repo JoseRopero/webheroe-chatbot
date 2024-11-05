@@ -61,7 +61,7 @@ function webheroe_chatbot_process_uploaded_pdf( $attachment_id ) {
 
     // Loguear los primeros 10 valores del embedding
     $embedding_preview = implode( ', ', array_slice( $embedding, 0, 10 ) );
-    error_log( "Embedding generado exitosamente para ID $attachment_id. Primeros valores: " . $embedding_preview );
+    error_log( "Embedding generado exitosamente para ID $attachment_id.");
 
     // Generar un ID único para el documento sin caracteres acentuados
     $sanitized_title = strtolower( remove_accents_custom( str_replace( array(' ', '.'), '_', $attachment->post_title ) ) );
