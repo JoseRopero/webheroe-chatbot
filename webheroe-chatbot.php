@@ -77,8 +77,87 @@ add_action( 'admin_menu', 'webheroe_chatbot_admin_menu' );
  */
 if ( ! function_exists( 'webheroe_chatbot_admin_page' ) ) {
     function webheroe_chatbot_admin_page() {
-        echo '<div class="wrap"><h1>WebHeroe Chatbot - Administración</h1><p>Bienvenido a la administración del plugin WebHeroe Chatbot.</p></div>';
+        echo '<div class="wrap">';
+        echo '<h1>Documentación del Plugin WebHeroe Chatbot</h1>';
+        
+        // Aviso sobre Composer
+        echo '<h2>Instalación de Composer</h2>';
+        echo '<p>Antes de activar este plugin, es necesario que instales Composer en tu servidor o en local. Composer es un gestor de dependencias para PHP que permite gestionar las librerías que usa tu proyecto.</p>';
+        echo '<h3>Pasos para instalar Composer:</h3>';
+        echo '<h4>Si accedes desde tu servidor:</h4>';
+        echo '<ol>
+                <li>Accede a tu servidor por FTP.</li>
+                <li>Descarga Composer desde su <a href="https://getcomposer.org/download/" target="_blank">página oficial</a>.</li>
+                <li>Sube el archivo <code>composer.phar</code> al directorio raíz de tu proyecto.</li>
+                <li>Desde la línea de comandos, navega a la carpeta del plugin y ejecuta: <code>php composer.phar install</code>.</li>
+              </ol>';
+        echo '<h4>Si trabajas en Local (como LocalWP):</h4>';
+        echo '<ol>';
+        echo '<li><strong>Descargar Composer</strong>: Ve al sitio oficial de Composer: <a href="https://getcomposer.org/download/">getcomposer.org</a> y sigue las instrucciones para descargar Composer.</li>';
+        echo '<li><strong>Instalar Composer</strong>: Abre la terminal de tu sistema operativo, navega a la carpeta de tu proyecto LocalWP y ejecuta los siguientes comandos:';
+        echo '<pre>';
+        echo 'php -r "copy(\'https://getcomposer.org/installer\', \'composer-setup.php\');"'.PHP_EOL;
+        echo 'php -r "if (hash_file(\'sha384\', \'composer-setup.php\') === \'9b5de7d80fa8e8f4b01ec71c39dc679bc3e0a7f9d07b67348dd6ee4799d70a77c167af2c92bc215f7ee8d1d3c7a7605e\') { echo \'Installer verified\'; } else { echo \'Installer corrupt\'; unlink(\'composer-setup.php\'); } echo PHP_EOL;"'.PHP_EOL;
+        echo 'php composer-setup.php'.PHP_EOL;
+        echo 'php -r "unlink(\'composer-setup.php\');"';
+        echo '</pre></li>';
+        echo '<li><strong>Verificar la Instalación</strong>: Aún en la terminal, ejecuta el siguiente comando para verificar que Composer se ha instalado correctamente:';
+        echo '<pre>composer --version</pre></li>';
+        echo '</ol>';
+        // Instrucciones para obtener las API Keys
+        echo '<h2>Instrucciones para obtener las API Keys</h2>';
+        echo '<p>A continuación se detallan los pasos para obtener las claves API necesarias:</p>';
+        echo '<h3>1. Clave API de OpenAI</h3>';
+        echo '<p>Visita la <a href="https://platform.openai.com/signup" target="_blank">página de OpenAI</a> y crea una cuenta. Luego, en tu panel, busca la sección de API keys y genera una nueva clave.</p>';
+        echo '<p>Copia la clave y pégala en la sección de configuración del plugin.</p>';
+    
+        echo '<h3>2. Clave API de Pinecone</h3>';
+        echo '<p>Regístrate en <a href="https://www.pinecone.io/" target="_blank">Pinecone</a>. Después de crear una cuenta, podrás encontrar la API key en tu perfil o en la sección de API keys.</p>';
+        echo '<p>Guarda la clave en la configuración del plugin.</p>';
+    
+        echo '<h3>3. Clave API de Groq</h3>';
+        echo '<p>Visita la <a href="https://www.groq.com/" target="_blank">página de Groq</a> y sigue el proceso de registro para obtener tu clave API.</p>';
+        echo '<p>Pega la clave en la configuración del plugin.</p>';
+        // Instrucciones para crear el índice en Pinecone
+        echo '<h2>Creación del Índice en Kibana</h2>';
+        echo '<p>Para utilizar el plugin, debes crear un índice en <code>Kibana</code> llamado <strong>"embedding"</strong>:</p>';
+        echo '<h3>Pasos para crear el índice:</h3>';
+        echo '<ol>';
+        echo '<li>Accede a tu cuenta de <code>Bonsai</code> y dirígete a <code>Kibana</code></li>';
+        echo '<li>En Kibana, ve a la sección de <code>Dev Tools</code>.</li>';
+        echo '<li>Para crear un índice llamado <code>embedding</code>, ejecuta el siguiente comando en la consola de Dev Tools:</li>';
+        echo '<pre>';
+        echo 'PUT /embedding'.PHP_EOL;
+        echo '{'.PHP_EOL;
+        echo ' "settings": {'.PHP_EOL;
+        echo '   "number_of_shards": 1,'.PHP_EOL;
+        echo '   "number_of_replicas": 1'.PHP_EOL;
+        echo ' },'.PHP_EOL;
+        echo ' "embedding": {'.PHP_EOL;
+        echo '   "properties": {'.PHP_EOL;
+        echo '     "text": {'.PHP_EOL;
+        echo '       "type": "text"'.PHP_EOL;
+        echo '     },'.PHP_EOL;
+        echo '     "metadata": {'.PHP_EOL;
+        echo '       "type": "object"'.PHP_EOL;
+        echo '     }'.PHP_EOL;
+        echo '   }'.PHP_EOL;
+        echo ' }'.PHP_EOL;
+        echo '}'.PHP_EOL;
+        echo '</pre>';
+        echo '</ol>';
+        echo '<h3>4. Host de Pinecone</h3>';
+        echo '<p>En el panel de Pinecone, encontrarás un campo que indica la URL del host.</p>';
+        echo '<p>Copia esta URL y pégala en la configuración del plugin.</p>';
+        echo '<h3>5. URL de Elasticsearch (Bonsai)</h3>';
+        echo '<p>Regístrate en <a href="https://bonsai.io/" target="_blank">Bonsai</a> y crea un clúster de Elasticsearch.</p>';
+        echo '<p>Una vez creado, obtendrás la URL del clúster.</p>';
+        echo '<p>Copia esta URL y colócala en la configuración del plugin.</p>';
+        echo '<h2>Nota Importante</h2>';
+        echo '<p>Si no has instalado Composer, el plugin no funcionará correctamente. Por favor, asegúrate de completar todos los pasos anteriores antes de activar el plugin.</p>';
+        echo '</div>';
     }
+    
 }
 
 /**
